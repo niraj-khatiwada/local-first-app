@@ -1,0 +1,26 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserSchema {
+  id: ID!
+  email: String!
+  username: String!
+  bio: String
+  self: UserSchema!
+}
+
+type Query {
+  getUsers: [UserSchema!]!
+  getUser(id: ID!): UserSchema!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): UserSchema!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  password: String!
+}

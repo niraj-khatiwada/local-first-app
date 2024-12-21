@@ -1,0 +1,27 @@
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_POSTGRES_SOURCE_URI
+      sslmode: disable
+
+storage:
+  type: mongodb
+  uri: !env PS_MONGO_SOURCE_URI
+
+port: 8080
+
+sync_rules:
+  content: |
+    bucket_definitions:
+      global:
+        data:
+          - SELECT * FROM lists
+          - SELECT * FROM todos
+
+client_auth:
+  k: !env PS_JWT_SECRET_KEY
+    
+  audience: ['powersync-dev', 'powersync']
+
+telemetry:
+    disable_telemetry_sharing: true

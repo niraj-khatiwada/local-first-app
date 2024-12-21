@@ -1,0 +1,13 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    depends_on:
+      - database
+      - redis
+    command: >
+      sh -c "pnpm start:dev"

@@ -1,0 +1,14 @@
+ARG NODE_IMAGE=node:20-slim
+
+FROM ${NODE_IMAGE} AS base
+
+RUN apt-get update && apt-get install -y procps
+
+RUN npm install -g pnpm@9.12.2
+
+FROM base AS development
+WORKDIR /app
+
+COPY package*.json pnpm-lock.yaml ./
+
+RUN pnpm install

@@ -1,0 +1,108 @@
+services:
+  server:
+    container_name: nestjs-boilerplate-server
+    image: nestjs-boilerplate-server:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - IS_WORKER=false
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    networks:
+      - nestjs-boilerplate-network
+    depends_on:
+      - redis
+
+  database:
+    image: postgres:16
+    container_name: nestjs-boilerplate-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: '${DATABASE_USERNAME}'
+      POSTGRES_PASSWORD: '${DATABASE_PASSWORD}'
+      POSTGRES_DB: '${DATABASE_NAME}'
+      TZ: 'UTC'
+    ports:
+      - '${DOCKER_DATABASE_PORT}:5432'
+    volumes:
+      - ./.docker/postgres_data:/var/lib/postgresql/data
+    command: ['postgres', '-c', 'wal_level=logical']
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nestjs-boilerplate-network
+
+  redis:
+    image: redis:7.0.1-alpine
+    container_name: nestjs-boilerplate-redis
+    restart: unless-stopped
+    ports:
+      - '${DOCKER_REDIS_PORT}:6379'
+    environment:
+      REDIS_ARGS: '--requirepass ${REDIS_PASSWORD}'
+    volumes:
+      - ./.docker/redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+    command: 'redis-server --save 120 1 --loglevel warning'
+    networks:
+      - nestjs-boilerplate-network
+
+  powersync:
+    image: journeyapps/powersync-service:latest
+    container_name: nestjs-boilerplate-powersync
+    restart: unless-stopped
+    depends_on:
+      mongo-rs-init:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+    command: ['start', '-r', 'unified']
+    volumes:
+      - ./powersync.config.yml:/config/config.yaml
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/config.yaml
+      PS_POSTGRES_SOURCE_URI: postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+      PS_MONGO_SOURCE_URI: ${PS_MONGO_SOURCE_URI}
+      PS_JWT_SECRET_KEY: ${PS_JWT_SECRET_KEY}
+    ports:
+      - 8080:8080
+    networks:
+      - nestjs-boilerplate-network
+
+  # MongoDB Service used internally
+  mongo:
+    image: mongo:7.0
+    container_name: nestjs-boilerplate-mongodb
+    command: --replSet rs0 --bind_ip_all --quiet
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - ./.docker/mongo_data:/data/db
+    networks:
+      - nestjs-boilerplate-network
+
+  # Initializes the MongoDB replica set. This service will not usually be actively running
+  mongo-rs-init:
+    image: mongo:7.0
+    container_name: nestjs-boilerplate-mongodb-setup
+    depends_on:
+      - mongo
+    restart: on-failure
+    entrypoint:
+      - bash
+      - -c
+      - 'mongosh --host mongo:27017 --eval ''try{rs.status().ok && quit(0)} catch {} rs.initiate({_id: "rs0", version: 1, members: [{ _id: 0, host : "mongo:27017" }]})'''
+    networks:
+      - nestjs-boilerplate-network
+
+networks:
+  nestjs-boilerplate-network:
+    name: nestjs-boilerplate-network
+    driver: bridge
