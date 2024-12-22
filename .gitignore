@@ -1,6 +1,6 @@
 # compiled output
-/dist
-/node_modules
+**/dist
+**/node_modules
 /build
 
 # Logs
@@ -65,5 +65,7 @@ docs/.vuepress/.cache
 # VuePress default build output directory
 docs/.vuepress/dist
 
-.docker/**/*
-!.docker/.gitkeep
+.docker/data/**/*
+!.docker/data/.gitkeep
+
+zero/*.db

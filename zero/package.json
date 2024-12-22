@@ -1,0 +1,19 @@
+{
+  "name": "zero",
+  "version": "1.0.0",
+  "description": "Zero cache server",
+  "main": "index.js",
+  "scripts": {
+    "start": "zero-cache-dev -p ./src/schema.ts",
+    "build": "esbuild  ./src/**/* --outdir=dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@rocicorp/zero": "^0.9.2024121900"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
+}

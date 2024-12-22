@@ -7,4 +7,4 @@ dist
 build
 .git
 .gitignore
-.docker
+.docker/data

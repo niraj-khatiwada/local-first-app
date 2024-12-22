@@ -1,14 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useQuery, usePowerSync } from "@powersync/react"
+import { usePowerSync } from "@powersync/react"
+import { useQuery } from "@powersync/tanstack-react-query"
 import { DBSchema } from "~/db/schema"
 import { useState } from "react"
-import { db as pdb } from "../db"
+import { queryClient } from "~/providers/QueryClientProvider"
+import { db } from "~/db"
 
 // Preload
-const _todos: DBSchema["todo"][] = await pdb.getAll("SELECT * FROM todo")
+// const _todos: DBSchema["todo"][] = await pdb.getAll("SELECT * FROM todo")
+queryClient.prefetchQuery({
+  queryKey: ["todos"],
+  queryFn: () => db.getAll("SELECT * FROM todo"),
+})
 
 function Home(): React.ReactNode {
-  const { data: todos } = useQuery<DBSchema["todo"]>("SELECT * FROM todo")
+  const { data: todos } = useQuery<DBSchema["todo"]>({
+    queryKey: ["todos"],
+    query: "SELECT * FROM todo",
+  })
 
   console.log(JSON.stringify(todos, null, 2))
 
@@ -16,7 +25,7 @@ function Home(): React.ReactNode {
     <div>
       <h1 className="text-3xl">Todos:</h1>
       <CreateTodo />
-      {((todos?.length ? todos : _todos) ?? [])?.map(todo => (
+      {((todos?.length ? todos : []) ?? [])?.map(todo => (
         <TodoItem
           key={todo?.id}
           id={todo?.id}

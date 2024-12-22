@@ -5,6 +5,7 @@ import { PowerSyncContext } from "@powersync/react"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 import { db } from "./db"
+import QueryClientProvider from "./providers/QueryClientProvider"
 
 const router = createRouter({
   routeTree,
@@ -17,14 +18,16 @@ declare module "@tanstack/react-router" {
   }
 }
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <App />
-)
-
 function App(): React.ReactNode {
   return (
     <PowerSyncContext.Provider value={db}>
-      <RouterProvider router={router} />
+      <QueryClientProvider>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </PowerSyncContext.Provider>
   )
 }
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <App />
+)
