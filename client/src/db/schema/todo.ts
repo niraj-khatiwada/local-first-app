@@ -1,10 +1,17 @@
-import { column, Schema, Table } from "@powersync/web"
+import { createTableSchema } from "@rocicorp/zero"
 
-export const todo = new Table({
-  // id is automatically handled
-  title: column.text,
-  description: column.text,
-  isCompleted: column.integer,
-  completedAt: column.text,
-  createdAt: column.text,
+const todoSchema = createTableSchema({
+  tableName: "todo",
+  columns: {
+    id: { type: "string" },
+    title: { type: "string" },
+    description: { type: "string", optional: true },
+    isCompleted: { type: "boolean" },
+    completedAt: { type: "number", optional: true },
+    createdAt: { type: "number" },
+    updatedAt: { type: "number" },
+  },
+  primaryKey: ["id"],
 })
+
+export default todoSchema

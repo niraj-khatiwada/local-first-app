@@ -1,26 +1,22 @@
 {
-  "name": "vite-react-template",
+  "name": "localfirst",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start:dev": "vite",
     "build": "vite build",
-    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@powersync/react": "^1.5.1",
-    "@powersync/tanstack-react-query": "^0.0.10",
-    "@powersync/web": "^1.12.1",
+    "@rocicorp/zero": "^0.10.2024122404",
     "@tanstack/react-query": "^5.8.4",
-    "import": "^0.0.6",
+    "@types/uuid": "^10.0.0",
     "js-logger": "^1.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vite-plugin-top-level-await": "^1.4.4",
-    "vite-plugin-wasm": "^3.4.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^5.8.4",
@@ -42,6 +38,9 @@
     "prettier": "^3.1.0",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.3.2",
-    "vite": "6.0.5"
+    "vite": "6.0.5",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.4.1",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

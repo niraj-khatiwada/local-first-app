@@ -1,53 +1,63 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { usePowerSync } from "@powersync/react"
-import { useQuery } from "@powersync/tanstack-react-query"
-import { DBSchema } from "~/db/schema"
+import { useQuery, useZero } from "@rocicorp/zero/react"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { useState } from "react"
-import { queryClient } from "~/providers/QueryClientProvider"
-import { db } from "~/db"
+import { Schema } from "~/db/schema"
+import { v4 as uuid } from "uuid"
+import { Zero } from "@rocicorp/zero"
 
-// Preload
-// const _todos: DBSchema["todo"][] = await pdb.getAll("SELECT * FROM todo")
-queryClient.prefetchQuery({
-  queryKey: ["todos"],
-  queryFn: () => db.getAll("SELECT * FROM todo"),
-})
+async function preload(zero: Zero<Schema>) {
+  const { complete } = zero.query.todo
+    .orderBy("createdAt", "desc")
+    .limit(100)
+    .preload()
+  complete
+    .then(() => {
+      console.log("preload complete.")
+    })
+    .catch(err => {
+      console.log("preload error", err)
+    })
+}
 
 function Home(): React.ReactNode {
-  const { data: todos } = useQuery<DBSchema["todo"]>({
-    queryKey: ["todos"],
-    query: "SELECT * FROM todo",
-  })
+  const zero = useZero<Schema>()
 
-  console.log(JSON.stringify(todos, null, 2))
+  const [todos] = useQuery(
+    zero.query.todo.orderBy("createdAt", "desc").limit(100)
+  )
 
   return (
     <div>
       <h1 className="text-3xl">Todos:</h1>
       <CreateTodo />
-      {((todos?.length ? todos : []) ?? [])?.map(todo => (
-        <TodoItem
-          key={todo?.id}
-          id={todo?.id}
-          title={todo?.title as string}
-          isCompleted={Boolean(todo?.isCompleted)}
-        />
-      ))}
+      <div className="my-5">
+        {((todos?.length ? todos : []) ?? [])?.map(todo => (
+          <TodoItem
+            key={todo?.id}
+            id={todo?.id}
+            title={todo?.title as string}
+            isCompleted={Boolean(todo?.isCompleted)}
+          />
+        ))}
+      </div>
     </div>
   )
 }
 function CreateTodo() {
-  const db = usePowerSync()
-
+  const zero = useZero<Schema>()
   const [title, setTitle] = useState("")
 
   const handleSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt?.preventDefault()
     if (title) {
-      await db.execute(
-        "INSERT INTO todo(id, createdAt, title, isCompleted) VALUES(uuid(), datetime('now'), ?, ?)",
-        [title, false]
-      )
+      await zero.mutate.todo.insert({
+        id: uuid(),
+        title,
+        isCompleted: false,
+        createdAt: +new Date(),
+        updatedAt: +new Date(),
+      })
+      await preload(zero)
       setTitle("")
     }
   }
@@ -74,13 +84,19 @@ const TodoItem = ({
   title: string
   isCompleted?: boolean
 }) => {
-  const db = usePowerSync()
+  const zero = useZero<Schema>()
 
   const handleCheckboxChange = async () => {
-    await db.execute("UPDATE todo SET isCompleted = ? WHERE id = ?", [
-      isCompleted ? "0" : "1",
+    await zero.mutate.todo.update({
       id,
-    ])
+      isCompleted: !isCompleted,
+    })
+    await preload(zero)
+  }
+
+  const handleDelete = async () => {
+    await zero.mutate.todo.delete({ id })
+    await preload(zero)
   }
 
   return (
@@ -92,6 +108,7 @@ const TodoItem = ({
         margin: "8px 0",
         backgroundColor: isCompleted ? "#e0ffe0" : "#ffe0e0",
         display: "flex",
+        maxWidth: "576px",
       }}
     >
       <input
@@ -108,6 +125,12 @@ const TodoItem = ({
       >
         {title}
       </label>
+      <button
+        className="ml-auto bg-red-400 rounded-md px-2"
+        onClick={handleDelete}
+      >
+        Delete
+      </button>
     </div>
   )
 }

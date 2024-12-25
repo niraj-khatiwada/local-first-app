@@ -4,6 +4,8 @@ import {
   QueryClientProvider as ReactQueryClientProvider,
 } from "@tanstack/react-query"
 
+const abc_def = "1"
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

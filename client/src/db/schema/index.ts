@@ -1,9 +1,15 @@
-import { column, Schema, Table } from "@powersync/web"
+import { createSchema, definePermissions } from "@rocicorp/zero"
+import todoSchema from "./todo"
 
-import { todo } from "./todo"
-
-export const appSchema = new Schema({
-  todo,
+export const schema = createSchema({
+  version: 1,
+  tables: {
+    todo: todoSchema,
+  },
 })
 
-export type DBSchema = (typeof appSchema)["types"]
+export const permissions = definePermissions(schema, () => {
+  return {}
+})
+
+export type Schema = typeof schema
