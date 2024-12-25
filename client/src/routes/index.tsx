@@ -1,9 +1,11 @@
 import { useQuery, useZero } from "@rocicorp/zero/react"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 import { Schema } from "~/db/schema"
 import { v4 as uuid } from "uuid"
 import { Zero } from "@rocicorp/zero"
+
+const userId = window.localStorage.getItem("userId") as string
 
 async function preload(zero: Zero<Schema>) {
   const { complete } = zero.query.todo
@@ -49,13 +51,15 @@ function CreateTodo() {
 
   const handleSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt?.preventDefault()
-    if (title) {
+    if (title && userId) {
       await zero.mutate.todo.insert({
         id: uuid(),
         title,
         isCompleted: false,
         createdAt: +new Date(),
         updatedAt: +new Date(),
+        createdByUserId: userId,
+        updatedByUserId: userId,
       })
       await preload(zero)
       setTitle("")
@@ -87,16 +91,22 @@ const TodoItem = ({
   const zero = useZero<Schema>()
 
   const handleCheckboxChange = async () => {
-    await zero.mutate.todo.update({
-      id,
-      isCompleted: !isCompleted,
-    })
-    await preload(zero)
+    if (userId) {
+      console.log(userId)
+      await zero.mutate.todo.update({
+        id,
+        isCompleted: !isCompleted,
+        updatedAt: +new Date(),
+      })
+      await preload(zero)
+    }
   }
 
   const handleDelete = async () => {
-    await zero.mutate.todo.delete({ id })
-    await preload(zero)
+    if (userId) {
+      await zero.mutate.todo.delete({ id })
+      await preload(zero)
+    }
   }
 
   return (

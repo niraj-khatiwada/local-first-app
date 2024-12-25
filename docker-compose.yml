@@ -68,6 +68,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.zero
+    ports:
+      - '${DOCKER_ZERO_PORT}:4848'
     networks:
       - nestjs-boilerplate-network
 

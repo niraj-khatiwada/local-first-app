@@ -1,8 +1,8 @@
-import { BaseModel } from '@/database/models/base.model';
+import { CreatorModel } from '@/database/models/creator.model';
 import { Column, Entity } from 'typeorm';
 
 @Entity('todo')
-export class TodoEntity extends BaseModel {
+export class TodoEntity extends CreatorModel {
   @Column()
   title: string;
 

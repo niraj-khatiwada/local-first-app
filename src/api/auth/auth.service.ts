@@ -223,7 +223,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       await this.jwtService.signAsync(
         {
-          id: data.id,
+          sub: data.id,
           hash: data.hash,
           role: data?.role,
         },
@@ -234,7 +234,7 @@ export class AuthService {
       ),
       await this.jwtService.signAsync(
         {
-          id: data.id,
+          sub: data.id,
           hash: data.hash,
         },
         {
