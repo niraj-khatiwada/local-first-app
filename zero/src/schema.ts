@@ -1,4 +1,8 @@
-import { createSchema, createTableSchema } from '@rocicorp/zero';
+import {
+  createSchema,
+  createTableSchema,
+  definePermissions,
+} from '@rocicorp/zero';
 
 const todoSchema = createTableSchema({
   tableName: 'todo',
@@ -19,6 +23,10 @@ export const schema = createSchema({
   tables: {
     todo: todoSchema,
   },
+});
+
+export const permissions = definePermissions(schema, () => {
+  return {};
 });
 
 export type Schema = typeof schema;
