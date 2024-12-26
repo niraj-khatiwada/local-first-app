@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import React from "react"
-import { validate as validateUUID } from "uuid"
+import useSession from "~/hooks/useSession"
 import { AppRoutes } from "~/types/route"
 
 type withProtectedRouteOptions = {
@@ -22,13 +22,9 @@ function withProtectedRoute<
   }
   return (props: PropsWithChildren<T>) => {
     const navigate = useNavigate()
+    const session = useSession()
 
-    const isAuthenticated = React.useMemo(() => {
-      const userId = window.localStorage.getItem("userId")
-      return validateUUID(userId) && !(userId == null)
-    }, [])
-
-    if (!isAuthenticated) {
+    if (!session?.isAuthenticated) {
       navigate({ to: redirectURI })
       return null
     }

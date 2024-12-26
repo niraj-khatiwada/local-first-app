@@ -1,12 +1,11 @@
 import { useQuery, useZero } from "@rocicorp/zero/react"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { Schema } from "~/db/schema"
 import { v4 as uuid } from "uuid"
 import { Zero } from "@rocicorp/zero"
 import withProtectedRoute from "~/hoc/withProtectedRoute"
-
-const userId = window.localStorage.getItem("userId") as string
+import useSession from "~/hooks/useSession"
 
 async function preload(zero: Zero<Schema>) {
   const { complete } = zero.query.todo
@@ -24,6 +23,8 @@ async function preload(zero: Zero<Schema>) {
 
 function Home(): React.ReactNode {
   const zero = useZero<Schema>()
+  const session = useSession()
+  const navigate = useNavigate()
 
   const [todos] = useQuery(
     zero.query.todo.orderBy("createdAt", "desc").limit(100)
@@ -32,6 +33,10 @@ function Home(): React.ReactNode {
   const handleLogout = () => {
     window.localStorage.clear()
     window.location.reload()
+  }
+
+  const handleLogin = () => {
+    navigate({ to: "/login" })
   }
 
   return (
@@ -48,27 +53,35 @@ function Home(): React.ReactNode {
           />
         ))}
       </div>
-      <div className="absolute bottom-4 left-4 bg-red-600 rounded-md px-2">
-        <button onClick={handleLogout}>Logout</button>
-      </div>
+      {session?.isAuthenticated ? (
+        <div className="absolute bottom-4 left-4 bg-red-600 rounded-md px-2">
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <div className="absolute bottom-4 left-4 bg-primary rounded-md px-2">
+          <button onClick={handleLogin}>Login</button>
+        </div>
+      )}
     </div>
   )
 }
 function CreateTodo() {
   const zero = useZero<Schema>()
+  const session = useSession()
+
   const [title, setTitle] = useState("")
 
   const handleSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt?.preventDefault()
-    if (title && userId) {
+    if (title && session?.isAuthenticated) {
       await zero.mutate.todo.insert({
         id: uuid(),
         title,
         isCompleted: false,
         createdAt: +new Date(),
         updatedAt: +new Date(),
-        createdByUserId: userId,
-        updatedByUserId: userId,
+        createdByUserId: zero.userID,
+        updatedByUserId: zero.userID,
       })
       await preload(zero)
       setTitle("")
@@ -98,21 +111,22 @@ const TodoItem = ({
   isCompleted?: boolean
 }) => {
   const zero = useZero<Schema>()
+  const session = useSession()
 
   const handleCheckboxChange = async () => {
-    if (userId) {
-      console.log(userId)
+    if (session?.isAuthenticated) {
       await zero.mutate.todo.update({
         id,
         isCompleted: !isCompleted,
         updatedAt: +new Date(),
+        updatedByUserId: zero.userID,
       })
       await preload(zero)
     }
   }
 
   const handleDelete = async () => {
-    if (userId) {
+    if (session?.isAuthenticated) {
       await zero.mutate.todo.delete({ id })
       await preload(zero)
     }

@@ -34,7 +34,9 @@ function SignUp() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="shadow-md rounded-md p-8 w-full max-w-sm">
-        <h1 className="text-5xl text-center mb-6">To✍️Do</h1>
+        <Link to="/">
+          <h1 className="text-5xl text-center mb-6">To✍️Do</h1>
+        </Link>
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">
           Register
         </h2>

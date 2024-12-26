@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useState } from "react"
 import { login } from "~/api/auth"
+import { storageKey } from "~/constants"
 import withPreventedRoute from "~/hoc/withPreventedRoute"
 
 function Login() {
@@ -19,8 +20,9 @@ function Login() {
     try {
       const res: { userId: string; accessToken: string } = await login(formData)
       if (res?.userId) {
-        window.localStorage.setItem("userId", res?.userId)
-        window.localStorage.setItem("accessToken", res?.accessToken)
+        window.localStorage.setItem(storageKey.userId, res?.userId)
+        window.localStorage.setItem(storageKey.accessToken, res?.accessToken)
+        window.localStorage.removeItem(storageKey.localUserId)
         window.location.reload()
       } else {
         throw new Error()
@@ -33,7 +35,9 @@ function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="shadow-md rounded-md p-8 w-full max-w-sm">
-        <h1 className="text-5xl text-center mb-6">To✍️Do</h1>
+        <Link to="/">
+          <h1 className="text-5xl text-center mb-6">To✍️Do</h1>
+        </Link>
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">
           SignIn
         </h2>
