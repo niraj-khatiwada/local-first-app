@@ -1,4 +1,4 @@
-# Local First App using ZeroSync
+# Local First App using Nest.js & Zero Sync
 
 A simple offline first to-do app using ZeroSync.
 ![alt text](sc.png)
