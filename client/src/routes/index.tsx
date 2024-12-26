@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Schema } from "~/db/schema"
 import { v4 as uuid } from "uuid"
 import { Zero } from "@rocicorp/zero"
+import withProtectedRoute from "~/hoc/withProtectedRoute"
 
 const userId = window.localStorage.getItem("userId") as string
 
@@ -28,9 +29,14 @@ function Home(): React.ReactNode {
     zero.query.todo.orderBy("createdAt", "desc").limit(100)
   )
 
+  const handleLogout = () => {
+    window.localStorage.clear()
+    window.location.reload()
+  }
+
   return (
     <div>
-      <h1 className="text-3xl">Todos:</h1>
+      <h1 className="text-5xl mb-6">To✍️Dos:</h1>
       <CreateTodo />
       <div className="my-5">
         {((todos?.length ? todos : []) ?? [])?.map(todo => (
@@ -41,6 +47,9 @@ function Home(): React.ReactNode {
             isCompleted={Boolean(todo?.isCompleted)}
           />
         ))}
+      </div>
+      <div className="absolute bottom-4 left-4 bg-red-600 rounded-md px-2">
+        <button onClick={handleLogout}>Logout</button>
       </div>
     </div>
   )
@@ -146,5 +155,5 @@ const TodoItem = ({
 }
 
 export const Route = createFileRoute("/")({
-  component: Home,
+  component: withProtectedRoute(Home),
 })
