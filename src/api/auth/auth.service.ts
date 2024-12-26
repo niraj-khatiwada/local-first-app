@@ -66,7 +66,7 @@ export class AuthService {
       user && (await verifyPassword(password, user.password));
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid password');
     }
 
     const { hash } = await this._generateAuthHash(user?.id);

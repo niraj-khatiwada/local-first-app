@@ -40,7 +40,7 @@ export class UserController {
     type: UserDto,
     summary: 'Get current user',
   })
-  @Get('me')
+  @Get('whoami')
   async getCurrentUser(@CurrentUser('id') userId: Uuid): Promise<UserDto> {
     return await this.userService.findOne(userId);
   }
