@@ -1,9 +1,13 @@
 # Local First App using Nest.js & Zero Sync
 
-A simple offline first to-do app using ZeroSync.
-![alt text](sc.png)
+A simple offline-first To-Do app using [ZeroSync](https://zero.rocicorp.dev/).
+![Screenshot Sample](sc.png)
 
-### Steps:
+## Architecture:
+
+![Architecture](architecture.png)
+
+### Steps to run:
 
 **1. Run dev servers:**
 This will spin up the main Postgres database, API server and zero cache server.
