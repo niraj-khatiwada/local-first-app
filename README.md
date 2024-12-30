@@ -33,4 +33,4 @@ cd client
 pnpm start:dev
 ```
 
-This setup uses [Ultimate Nest.js](https://github.com/niraj-khatiwada/ultimate-nestjs-boilerplate) Boilerplate for API.
+This setup uses [Ultimate Nest.js Boilerplate](https://github.com/niraj-khatiwada/ultimate-nestjs-boilerplate) for API.
