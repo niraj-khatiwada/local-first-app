@@ -8,8 +8,9 @@ export const login = async function (body: {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
-      "Content-Type": "application/json", // Set the content type
+      "Content-Type": "application/json",
     },
+    credentials: "include",
   })
   if (!res.ok) {
     throw await res.json()
@@ -26,8 +27,23 @@ export const register = async function (body: {
     method: "POST",
     body: JSON.stringify(body),
     headers: {
-      "Content-Type": "application/json", // Set the content type
+      "Content-Type": "application/json",
     },
+    credentials: "include",
+  })
+  if (!res.ok) {
+    throw await res.json()
+  }
+  return res.json()
+}
+
+export const whoami = async function () {
+  const res = await fetch(`${API_URI}/v1/user/whoami`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
   })
   if (!res.ok) {
     throw await res.json()
